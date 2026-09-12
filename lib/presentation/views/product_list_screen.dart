@@ -142,14 +142,36 @@ class _ProductListScreenState extends State<ProductListScreen> {
       );
     }
 
+    final hasFooter =
+        viewModel.hasMore || viewModel.paginationErrorMessage != null;
+
     return RefreshIndicator(
       onRefresh: viewModel.refreshProducts,
       child: ListView.builder(
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: viewModel.products.length + (viewModel.hasMore ? 1 : 0),
+        itemCount: viewModel.products.length + (hasFooter ? 1 : 0),
         itemBuilder: (context, index) {
           if (index == viewModel.products.length) {
+            if (viewModel.paginationErrorMessage != null) {
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Text(
+                      viewModel.paginationErrorMessage!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: viewModel.retry,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Try again'),
+                    ),
+                  ],
+                ),
+              );
+            }
             return const Padding(
               padding: EdgeInsets.all(16),
               child: Center(child: CircularProgressIndicator()),

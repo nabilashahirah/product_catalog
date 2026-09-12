@@ -2,7 +2,10 @@ import 'package:product_catalog/data/models/product.dart';
 import 'package:product_catalog/data/services/product_api_service.dart';
 
 class ProductRepository {
-  final ProductApiService _apiService = ProductApiService();
+  ProductRepository({ProductApiService? apiService})
+      : _apiService = apiService ?? ProductApiService();
+
+  final ProductApiService _apiService;
 
   Future<ProductResponse> getProducts(int limit, int skip) async {
     final json = await _apiService.fetchProducts(limit, skip);
