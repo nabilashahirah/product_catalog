@@ -16,6 +16,7 @@ void main() {
       expect(viewModel.errorMessage, isNull);
       expect(viewModel.hasMore, true);
       expect(viewModel.searchQuery, '');
+      expect(viewModel.selectedCategory, isNull);
       expect(viewModel.isEmpty, true);
     });
 
@@ -47,16 +48,14 @@ void main() {
     test('loadMoreProducts should not duplicate when called rapidly', () async {
       await viewModel.fetchProducts();
 
-      // Call twice simultaneously
       final future1 = viewModel.loadMoreProducts();
       final future2 = viewModel.loadMoreProducts();
       await Future.wait([future1, future2]);
 
-      // Should only have 40 (20 + 20), not 60
       expect(viewModel.products.length, 40);
     });
 
-    test('searchProducts should update search query', () async {
+    test('searchProducts should update search query', () {
       viewModel.onSearchChanged('phone');
 
       expect(viewModel.searchQuery, 'phone');
@@ -66,7 +65,6 @@ void main() {
       await viewModel.fetchProducts();
       viewModel.onSearchChanged('');
 
-      // Wait for fetch to complete
       await Future.delayed(const Duration(milliseconds: 100));
 
       expect(viewModel.searchQuery, '');
@@ -80,8 +78,32 @@ void main() {
 
       await viewModel.refreshProducts();
 
-      // Should reset to first page only
       expect(viewModel.products.length, lessThan(countBefore));
+      expect(viewModel.products.length, 20);
+    });
+
+    test('fetchCategories should load categories', () async {
+      await viewModel.fetchCategories();
+
+      expect(viewModel.categories, isNotEmpty);
+    });
+
+    test('selectCategory should filter products', () async {
+      await viewModel.fetchProducts();
+      await viewModel.fetchCategories();
+
+      await viewModel.selectCategory('smartphones');
+
+      expect(viewModel.selectedCategory, 'smartphones');
+      expect(viewModel.products, isNotEmpty);
+      expect(viewModel.isLoading, false);
+    });
+
+    test('selectCategory null should reset to all products', () async {
+      await viewModel.selectCategory('smartphones');
+      await viewModel.selectCategory(null);
+
+      expect(viewModel.selectedCategory, isNull);
       expect(viewModel.products.length, 20);
     });
   });
