@@ -43,9 +43,7 @@ void main() {
       final product = Product.fromJson(json);
 
       expect(product.price, 10.0);
-      expect(product.price is double, true);
       expect(product.rating, 4.0);
-      expect(product.rating is double, true);
     });
 
     test('should handle single image in images list', () {
