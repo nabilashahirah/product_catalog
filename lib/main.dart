@@ -12,13 +12,38 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  static const _seed = Color(0xFF4F46E5);
+  // Custom pastel palette
+  static const _primary = Color(0xFFF791A9);           // rose
+  static const _primaryContainer = Color(0xFFFFDBDF);  // light pink
+  static const _onPrimaryContainer = Color(0xFF7A2A3D);
+  static const _secondary = Color(0xFFBAD6DA);         // light blue
+  static const _secondaryContainer = Color(0xFFE0F2F4);
+  static const _onSecondaryContainer = Color(0xFF1F3D42);
+  static const _tertiary = Color(0xFFDDDD7B);          // olive
+  static const _tertiaryContainer = Color(0xFFFFE797); // butter
+  static const _onTertiaryContainer = Color(0xFF574200);
+  static const _scaffoldBg = Color(0xFFFDF7F8);        // warm cream
 
   @override
   Widget build(BuildContext context) {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: _seed,
+    final base = ColorScheme.fromSeed(
+      seedColor: _primary,
       brightness: Brightness.light,
+    );
+
+    final scheme = base.copyWith(
+      primary: _primary,
+      onPrimary: Colors.white,
+      primaryContainer: _primaryContainer,
+      onPrimaryContainer: _onPrimaryContainer,
+      secondary: _secondary,
+      onSecondary: const Color(0xFF1F3D42),
+      secondaryContainer: _secondaryContainer,
+      onSecondaryContainer: _onSecondaryContainer,
+      tertiary: _tertiary,
+      onTertiary: const Color(0xFF3D3D10),
+      tertiaryContainer: _tertiaryContainer,
+      onTertiaryContainer: _onTertiaryContainer,
     );
 
     return ChangeNotifierProvider(
@@ -29,7 +54,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: scheme,
           useMaterial3: true,
-          scaffoldBackgroundColor: const Color(0xFFF7F7FB),
+          scaffoldBackgroundColor: _scaffoldBg,
           appBarTheme: AppBarTheme(
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.white,
