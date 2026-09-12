@@ -9,15 +9,24 @@ class LoadingView extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
+    final width = MediaQuery.sizeOf(context).width;
+    final columns = width >= 1200
+        ? 5
+        : width >= 900
+            ? 4
+            : width >= 600
+                ? 3
+                : 2;
+
     return GridView.builder(
       padding: const EdgeInsets.fromLTRB(12, 6, 12, 16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: columns,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
         childAspectRatio: 0.62,
       ),
-      itemCount: 6,
+      itemCount: columns * 3,
       itemBuilder: (context, index) {
         return Container(
           decoration: BoxDecoration(

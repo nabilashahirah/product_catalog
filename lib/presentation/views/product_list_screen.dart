@@ -46,6 +46,14 @@ class _ProductListScreenState extends State<ProductListScreen> {
     super.dispose();
   }
 
+  int _columnsFor(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    if (width >= 1200) return 5;
+    if (width >= 900) return 4;
+    if (width >= 600) return 3;
+    return 2;
+  }
+
   void _openCategorySheet(ProductViewModel viewModel) {
     showModalBottomSheet(
       context: context,
@@ -103,6 +111,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       prefixIcon: const Icon(Icons.search_rounded),
                       suffixIcon: viewModel.searchQuery.isNotEmpty
                           ? IconButton(
+                              tooltip: 'Clear search',
                               icon: const Icon(Icons.close_rounded),
                               onPressed: () {
                                 _searchController.clear();
@@ -179,9 +188,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
             sliver: SliverGrid(
-              gridDelegate:
-                  const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: _columnsFor(context),
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
                 childAspectRatio: 0.62,
@@ -261,22 +269,31 @@ class _FilterButton extends StatelessWidget {
     final fg = active ? Colors.white : scheme.onSurface;
     final border = active ? scheme.primary : scheme.outlineVariant;
 
-    return Opacity(
-      opacity: enabled ? 1 : 0.4,
-      child: Material(
-        color: bg,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: border),
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: enabled ? onTap : null,
-          child: Container(
-            width: 52,
-            height: 52,
-            alignment: Alignment.center,
-            child: Icon(Icons.tune_rounded, color: fg),
+    return Tooltip(
+      message: active ? 'Change category filter' : 'Filter by category',
+      child: Opacity(
+        opacity: enabled ? 1 : 0.4,
+        child: Material(
+          color: bg,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: BorderSide(color: border),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: enabled ? onTap : null,
+            child: Semantics(
+              button: true,
+              label: active
+                  ? 'Category filter active. Tap to change.'
+                  : 'Filter products by category',
+              child: Container(
+                width: 52,
+                height: 52,
+                alignment: Alignment.center,
+                child: Icon(Icons.tune_rounded, color: fg),
+              ),
+            ),
           ),
         ),
       ),
