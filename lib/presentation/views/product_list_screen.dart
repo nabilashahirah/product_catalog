@@ -22,14 +22,14 @@ class _ProductListScreenState extends State<ProductListScreen> {
   void initState() {
     super.initState();
 
-    // Fetch products on screen load
     Future.microtask(() {
       if (mounted) {
-        context.read<ProductViewModel>().fetchProducts();
+        final viewModel = context.read<ProductViewModel>();
+        viewModel.fetchProducts();
+        viewModel.fetchCategories();
       }
     });
 
-    // Pagination scroll listener
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
@@ -57,7 +57,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
         children: [
           // Search bar
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
             child: TextField(
               controller: _searchController,
               onChanged: viewModel.onSearchChanged,
@@ -79,6 +79,42 @@ class _ProductListScreenState extends State<ProductListScreen> {
               ),
             ),
           ),
+
+          // Category chips
+          if (viewModel.categories.isNotEmpty &&
+              viewModel.searchQuery.isEmpty)
+            SizedBox(
+              height: 50,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                itemCount: viewModel.categories.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: FilterChip(
+                        label: const Text('All'),
+                        selected: viewModel.selectedCategory == null,
+                        onSelected: (_) => viewModel.selectCategory(null),
+                      ),
+                    );
+                  }
+
+                  final category = viewModel.categories[index - 1];
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: FilterChip(
+                      label: Text(category.name),
+                      selected: viewModel.selectedCategory == category.slug,
+                      onSelected: (_) =>
+                          viewModel.selectCategory(category.slug),
+                    ),
+                  );
+                },
+              ),
+            ),
+
           // Content area
           Expanded(
             child: _buildContent(viewModel),
@@ -89,12 +125,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   Widget _buildContent(ProductViewModel viewModel) {
-    // Loading state
     if (viewModel.isLoading) {
       return const LoadingView();
     }
 
-    // Error state
     if (viewModel.errorMessage != null && viewModel.products.isEmpty) {
       return ErrorView(
         message: viewModel.errorMessage!,
@@ -102,14 +136,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
       );
     }
 
-    // Empty state
     if (viewModel.isEmpty) {
       return EmptyView(
         searchQuery: viewModel.searchQuery,
       );
     }
 
-    // Success state — product list
     return RefreshIndicator(
       onRefresh: viewModel.refreshProducts,
       child: ListView.builder(
@@ -117,7 +149,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12),
         itemCount: viewModel.products.length + (viewModel.hasMore ? 1 : 0),
         itemBuilder: (context, index) {
-          // Bottom loader for pagination
           if (index == viewModel.products.length) {
             return const Padding(
               padding: EdgeInsets.all(16),
