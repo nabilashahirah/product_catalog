@@ -12,26 +12,47 @@ class EmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isSearch = searchQuery.isNotEmpty;
+
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(28),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.inventory_2_outlined,
-              size: 64,
-              color: Colors.grey,
+            Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                color: scheme.secondaryContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isSearch ? Icons.search_off_rounded : Icons.inventory_2_outlined,
+                size: 48,
+                color: scheme.onSecondaryContainer,
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             Text(
-              searchQuery.isNotEmpty
-                  ? 'No products found for "$searchQuery"'
-                  : 'No products available',
+              isSearch ? 'No matches' : 'Nothing here yet',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: scheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              isSearch
+                  ? 'We couldn\'t find products for "$searchQuery".'
+                  : 'No products are available right now.',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
+              style: TextStyle(
+                fontSize: 14,
+                color: scheme.onSurfaceVariant,
+                height: 1.4,
               ),
             ),
           ],
