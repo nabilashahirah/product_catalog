@@ -1,5 +1,3 @@
-// lib/presentation/views/product_list_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:product_catalog/presentation/viewmodels/product_view_model.dart';
@@ -26,7 +24,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
     // Fetch products on screen load
     Future.microtask(() {
-      context.read<ProductViewModel>().fetchProducts();
+      if (mounted) {
+        context.read<ProductViewModel>().fetchProducts();
+      }
     });
 
     // Pagination scroll listener
