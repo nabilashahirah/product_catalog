@@ -52,9 +52,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Product Details'),
+        title: const Text('Details'),
         actions: [
           if (_isRefreshing)
             const Padding(
@@ -76,11 +78,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             if (_refreshError != null)
               Container(
                 width: double.infinity,
-                color: Colors.orange.shade100,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                color: Colors.orange.shade50,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
-                    Expanded(child: Text(_refreshError!)),
+                    Icon(Icons.info_outline_rounded,
+                        size: 20, color: Colors.orange.shade800),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _refreshError!,
+                        style: TextStyle(color: Colors.orange.shade900),
+                      ),
+                    ),
                     TextButton(
                       onPressed: _loadDetail,
                       child: const Text('Retry'),
@@ -89,119 +99,142 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 ),
               ),
 
-            SizedBox(
-              width: double.infinity,
-              height: 300,
-              child: CachedNetworkImage(
-                imageUrl: _product.images.isNotEmpty
-                    ? _product.images[0]
-                    : _product.thumbnail,
-                fit: BoxFit.contain,
-                placeholder: (context, url) => Container(
-                  color: Colors.grey[200],
-                  child: const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
+            Hero(
+              tag: 'product-image-${_product.id}',
+              child: Container(
+                width: double.infinity,
+                height: 320,
+                color: scheme.surfaceContainerHighest,
+                child: CachedNetworkImage(
+                  imageUrl: _product.images.isNotEmpty
+                      ? _product.images[0]
+                      : _product.thumbnail,
+                  memCacheWidth: 900,
+                  fit: BoxFit.contain,
+                  placeholder: (context, url) => Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: scheme.primary,
+                    ),
                   ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.broken_image, size: 64, color: Colors.grey),
+                  errorWidget: (context, url, error) => Icon(
+                    Icons.image_not_supported_outlined,
+                    size: 64,
+                    color: scheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             ),
 
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     _product.title,
                     style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      height: 1.2,
+                      letterSpacing: -0.3,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 14),
 
                   Row(
                     children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 22),
-                      const SizedBox(width: 4),
-                      Text(
-                        _product.rating.toStringAsFixed(1),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: scheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '\$${_product.price.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: scheme.onPrimaryContainer,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.amber.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.star_rounded,
+                                color: Colors.amber.shade700, size: 18),
+                            const SizedBox(width: 4),
+                            Text(
+                              _product.rating.toStringAsFixed(1),
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.amber.shade900,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 24),
 
-                  Text(
-                    '\$${_product.price.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  const Text(
-                    'Description',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  _SectionHeader(icon: Icons.description_outlined, label: 'Description'),
                   const SizedBox(height: 8),
                   Text(
                     _product.description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
-                      height: 1.5,
+                      height: 1.55,
+                      color: scheme.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: 20),
 
                   if (_product.images.length > 1) ...[
-                    const Text(
-                      'Images',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 24),
+                    _SectionHeader(icon: Icons.photo_library_outlined, label: 'Gallery'),
+                    const SizedBox(height: 10),
                     SizedBox(
-                      height: 100,
+                      height: 110,
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: _product.images.length,
-                        separatorBuilder: (context, index) => const SizedBox(width: 8),
+                        separatorBuilder: (context, index) => const SizedBox(width: 10),
                         itemBuilder: (context, index) {
                           return ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: CachedNetworkImage(
-                              imageUrl: _product.images[index],
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => Container(
-                                width: 100,
-                                height: 100,
-                                color: Colors.grey[200],
-                                child: const Center(
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              width: 110,
+                              height: 110,
+                              color: scheme.surfaceContainerHighest,
+                              child: CachedNetworkImage(
+                                imageUrl: _product.images[index],
+                                memCacheWidth: 330,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => Center(
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: scheme.primary,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              errorWidget: (context, url, error) => Container(
-                                width: 100,
-                                height: 100,
-                                color: Colors.grey[200],
-                                child: const Icon(Icons.broken_image, color: Colors.grey),
+                                errorWidget: (context, url, error) => Icon(
+                                  Icons.broken_image_outlined,
+                                  color: scheme.onSurfaceVariant,
+                                ),
                               ),
                             ),
                           );
@@ -215,6 +248,31 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  const _SectionHeader({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: scheme.primary),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.2,
+          ),
+        ),
+      ],
     );
   }
 }
